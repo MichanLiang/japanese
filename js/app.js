@@ -28,6 +28,7 @@ function getReviews(){ return loadJSON('jp_reviews', {}); }
 function getCache(){ return loadJSON('jp_cache', {}); }
 function getUnitProgress(){ return loadJSON('jp_unit_progress', {}); }
 function getCheckin(){ return loadJSON('jp_checkin', {dates:[], streak:0, lastDate:null}); }
+function getDailyWords(){ return loadJSON('jp_daily_words', {date:null, count:0}); }
 
 /* ==================== 畫面切換 ==================== */
 function go(screen){
@@ -233,9 +234,34 @@ function markWordLearned(w){
   const p = prog[state.unitId] || {learnedCount:0, seen:{}};
   p.seen = p.seen || {};
   const key = wkey(state.level, w);
-  if(!p.seen[key]){ p.seen[key] = true; p.learnedCount = Object.keys(p.seen).length; }
-  prog[state.unitId] = p;
-  saveJSON('jp_unit_progress', prog);
+  if(!p.seen[key]){
+    p.seen[key] = true;
+    p.learnedCount = Object.keys(p.seen).length;
+    prog[state.unitId] = p;
+    saveJSON('jp_unit_progress', prog);
+    trackDailyWords();
+  }
+}
+
+function trackDailyWords(){
+  const today = new Date().toDateString();
+  const dw = getDailyWords();
+  if(dw.date !== today){ dw.date = today; dw.count = 0; }
+  dw.count++;
+  saveJSON('jp_daily_words', dw);
+  const goal = getSettings().dailyGoal;
+  if(dw.count >= goal){
+    const ci = getCheckin();
+    if(ci.lastDate !== today){
+      const yesterday = new Date(Date.now()-86400000).toDateString();
+      ci.streak = (ci.lastDate === yesterday) ? ci.streak + 1 : 1;
+      ci.lastDate = today;
+      ci.dates.push(today);
+      saveJSON('jp_checkin', ci);
+      showToast('已自動打卡！連續 ' + ci.streak + ' 天 🎉');
+      renderHome();
+    }
+  }
 }
 
 function nextCard(){
