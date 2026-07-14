@@ -260,7 +260,7 @@ function speak(){
   const words = currentUnitWords();
   const w = words[state.cardIndex];
   if(!w) return;
-  speakText(w.k);
+  speakText(w.r);
 }
 
 function speakText(text){
