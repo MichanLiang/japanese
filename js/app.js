@@ -185,11 +185,31 @@ function renderExampleBlock(info){
 }
 
 async function flipCard(){
-  if(state.revealed || state.loading) return;
+  if(state.loading) return;
   const words = currentUnitWords();
   const w = words[state.cardIndex];
   const key = wkey(state.level, w);
   const cache = getCache();
+
+  // 已翻面 → 翻回正面
+  if(state.revealed){
+    state.revealed = false;
+    const settings = getSettings();
+    const info = cache[key];
+    const el = document.getElementById('flashcardEl');
+    el.innerHTML = `
+      <div class="card-genko">
+        <div class="card-kanji">${settings.showKanji ? w.k : w.r}</div>
+      </div>
+      <div class="card-reading">${w.r}</div>
+      <div class="card-meaning">${info ? info.zh : '<span class="card-hint" style="position:static;">點擊卡片查看意思</span>'}</div>
+      ${info ? renderExampleBlock(info) : ''}
+      <div class="card-hint">輕點卡片翻譯 · 再點播放語音</div>
+    `;
+    return;
+  }
+
+  // 正面 → 翻面
   if(cache[key]){
     state.revealed = true;
     return;
@@ -224,13 +244,31 @@ function nextCard(){
 }
 
 function finishUnitLearning(){
-  go('wordlist');
-  showToast('這個單元的字卡看完了，要不要做個小測驗？');
-  setTimeout(()=>startQuiz(state.unitId), 900);
+  const el = document.getElementById('flashcardEl');
+  el.innerHTML = `
+    <div style="text-align:center; padding:40px 20px;">
+      <div style="font-size:48px; margin-bottom:16px;">🎉</div>
+      <div style="font-family:var(--font-display); font-size:20px; font-weight:700; margin-bottom:8px;">這個單元看完了！</div>
+      <div style="color:#8a7f6c; font-size:13px; margin-bottom:28px;">接下來要怎麼做？</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn-primary" onclick="startQuiz('${state.unitId}')">做個小測驗</button>
+        <button class="btn-secondary" onclick="restartFlashcards()">重新看一次字卡</button>
+        <button style="background:none; border:none; color:#9b8f7c; font-size:13px; cursor:pointer; padding:8px;" onclick="go('home')">回到首頁</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('cardCounter').textContent = '完成';
+  document.getElementById('cardProgressFill').style.width = '100%';
 }
 
 function exitFlashcards(){
   go('wordlist');
+}
+
+function restartFlashcards(){
+  state.cardIndex = 0;
+  state.revealed = false;
+  renderFlashcard();
 }
 
 function updateStarButton(w){
