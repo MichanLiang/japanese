@@ -223,7 +223,8 @@ body{
   position:relative;
 }
 .card-genko{
-  width:92px; height:92px; border:2px solid var(--ai-pale); border-radius:var(--radius-s);
+  min-width:92px; min-height:92px; padding:8px 14px;
+  border:2px solid var(--ai-pale); border-radius:var(--radius-s);
   display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:18px;
 }
 .card-genko::before,.card-genko::after{
@@ -231,7 +232,8 @@ body{
 }
 .card-genko::before{left:50%; top:0; bottom:0; width:1px;}
 .card-genko::after{top:50%; left:0; right:0; height:1px;}
-.card-kanji{font-family:var(--font-jp); font-size:38px; font-weight:700; position:relative; z-index:1;}
+.card-kanji{font-family:var(--font-jp); font-size:38px; font-weight:700; position:relative; z-index:1; word-break:keep-all;}
+.card-kanji.long{font-size:28px;}
 .card-reading{font-family:var(--font-jp); font-size:15px; color:var(--ai); margin-bottom:14px; min-height:20px;}
 .card-meaning{font-size:16px; font-weight:600; color:var(--sumi); min-height:24px;}
 .card-example{

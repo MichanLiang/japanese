@@ -187,9 +187,11 @@ function renderFlashcard(){
   state.revealed = false;
 
   const el = document.getElementById('flashcardEl');
+  const kanjiText = settings.showKanji ? w.k : w.r;
+  const kanjiCls = kanjiText.length > 2 ? 'card-kanji long' : 'card-kanji';
   el.innerHTML = `
     <div class="card-genko">
-      <div class="card-kanji">${settings.showKanji ? w.k : w.r}</div>
+      <div class="${kanjiCls}">${kanjiText}</div>
     </div>
     <div class="card-reading">${w.r}</div>
     <div class="card-meaning" id="cardMeaning">${info ? info.zh : '<span class="card-hint" style="position:static;">點擊卡片查看意思</span>'}</div>
@@ -219,9 +221,11 @@ async function flipCard(){
     state.revealed = false;
     const info = cache[key];
     const el = document.getElementById('flashcardEl');
+    const kanjiText = settings.showKanji ? w.k : w.r;
+    const kanjiCls = kanjiText.length > 2 ? 'card-kanji long' : 'card-kanji';
     el.innerHTML = `
       <div class="card-genko">
-        <div class="card-kanji">${settings.showKanji ? w.k : w.r}</div>
+        <div class="${kanjiCls}">${kanjiText}</div>
       </div>
       <div class="card-reading">${w.r}</div>
       <div class="card-meaning">${info ? info.zh : '<span class="card-hint" style="position:static;">點擊卡片查看意思</span>'}</div>
@@ -236,9 +240,11 @@ async function flipCard(){
     state.revealed = true;
     const info = cache[key];
     const el = document.getElementById('flashcardEl');
+    const kanjiText = settings.showKanji ? w.k : w.r;
+    const kanjiCls = kanjiText.length > 2 ? 'card-kanji long' : 'card-kanji';
     el.innerHTML = `
       <div class="card-genko">
-        <div class="card-kanji">${settings.showKanji ? w.k : w.r}</div>
+        <div class="${kanjiCls}">${kanjiText}</div>
       </div>
       <div class="card-reading">${w.r}</div>
       <div class="card-meaning">${info.zh}</div>
@@ -253,9 +259,11 @@ async function flipCard(){
   state.loading = false;
   state.revealed = true;
   const el = document.getElementById('flashcardEl');
+  const kanjiText2 = settings.showKanji ? w.k : w.r;
+  const kanjiCls2 = kanjiText2.length > 2 ? 'card-kanji long' : 'card-kanji';
   el.innerHTML = `
     <div class="card-genko">
-      <div class="card-kanji">${settings.showKanji ? w.k : w.r}</div>
+      <div class="${kanjiCls2}">${kanjiText2}</div>
     </div>
     <div class="card-reading">${w.r}</div>
     <div class="card-meaning">${info.zh}</div>
