@@ -10,7 +10,9 @@ let state = {
   revealed: false,
   loading: false,
   wbFilter: 'due',
-  quiz: null
+  quiz: null,
+  showReading: true,
+  showChinese: true
 };
 
 /* ==================== localStorage 工具 ==================== */
@@ -120,19 +122,38 @@ function openUnit(unitId){
   state.level = found.level;
   document.getElementById('wordlistLevel').textContent = LEVEL_LABEL[found.level];
   document.getElementById('wordlistTheme').textContent = found.unit.theme;
+  renderWordlist();
+  go('wordlist');
+}
+
+function renderWordlist(){
+  const found = findUnit(state.unitId);
+  if(!found) return;
   const wb = getWordbook();
-  document.getElementById('wordlistBody').innerHTML = found.unit.words.map(w=>{
+  const body = document.getElementById('wordlistBody');
+  body.innerHTML = found.unit.words.map(w=>{
     const saved = !!wb[wkey(found.level, w)];
     return `<div class="word-row">
       <div>
         <div class="word-kanji">${w.k}</div>
-        <div class="word-reading">${w.r}</div>
+        ${state.showReading ? `<div class="word-reading">${w.r}</div>` : ''}
       </div>
-      <div class="word-zh">${w.zh}</div>
+      ${state.showChinese ? `<div class="word-zh">${w.zh}</div>` : ''}
       ${saved ? '<div class="word-star">★</div>' : ''}
     </div>`;
   }).join('');
-  go('wordlist');
+}
+
+function toggleWordlistReading(){
+  state.showReading = !state.showReading;
+  document.getElementById('toggleReading').classList.toggle('on', state.showReading);
+  renderWordlist();
+}
+
+function toggleWordlistChinese(){
+  state.showChinese = !state.showChinese;
+  document.getElementById('toggleChinese').classList.toggle('on', state.showChinese);
+  renderWordlist();
 }
 
 /* ==================== 字卡學習 ==================== */
@@ -191,11 +212,11 @@ async function flipCard(){
   const w = words[state.cardIndex];
   const key = wkey(state.level, w);
   const cache = getCache();
+  const settings = getSettings();
 
   // 已翻面 → 翻回正面
   if(state.revealed){
     state.revealed = false;
-    const settings = getSettings();
     const info = cache[key];
     const el = document.getElementById('flashcardEl');
     el.innerHTML = `
@@ -213,17 +234,34 @@ async function flipCard(){
   // 正面 → 翻面
   if(cache[key]){
     state.revealed = true;
+    const info = cache[key];
+    const el = document.getElementById('flashcardEl');
+    el.innerHTML = `
+      <div class="card-genko">
+        <div class="card-kanji">${settings.showKanji ? w.k : w.r}</div>
+      </div>
+      <div class="card-reading">${w.r}</div>
+      <div class="card-meaning">${info.zh}</div>
+      ${renderExampleBlock(info)}
+      <div class="card-hint">輕點卡片翻回正面</div>
+    `;
     return;
   }
   state.loading = true;
   document.getElementById('cardMeaning').innerHTML = '<span class="card-loading">翻譯中…</span>';
-  document.getElementById('cardHintBottom').textContent = '';
   const info = await fetchWordInfo(w);
   state.loading = false;
   state.revealed = true;
-  document.getElementById('cardMeaning').textContent = info.zh;
-  const slot = document.getElementById('cardExampleSlot');
-  if(slot) slot.outerHTML = renderExampleBlock(info);
+  const el = document.getElementById('flashcardEl');
+  el.innerHTML = `
+    <div class="card-genko">
+      <div class="card-kanji">${settings.showKanji ? w.k : w.r}</div>
+    </div>
+    <div class="card-reading">${w.r}</div>
+    <div class="card-meaning">${info.zh}</div>
+    ${renderExampleBlock(info)}
+    <div class="card-hint">輕點卡片翻回正面</div>
+  `;
   markWordLearned(w);
 }
 
@@ -266,7 +304,16 @@ function trackDailyWords(){
 
 function nextCard(){
   state.cardIndex++;
+  state.revealed = false;
   renderFlashcard();
+}
+
+function prevCard(){
+  if(state.cardIndex > 0){
+    state.cardIndex--;
+    state.revealed = false;
+    renderFlashcard();
+  }
 }
 
 function finishUnitLearning(){

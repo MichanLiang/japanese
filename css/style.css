@@ -338,3 +338,12 @@ select.plain{border:none; background:none; font-family:var(--font-zh); font-size
 .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
 
 ::-webkit-scrollbar{display:none;}
+
+/* ---------- 單字列表開關 ---------- */
+.wl-toggle{
+  width:auto; padding:6px 14px; border-radius:100px;
+  border:1px solid var(--line); background:var(--washi);
+  font-size:12px; cursor:pointer; display:flex; align-items:center; gap:6px;
+  color:var(--sumi-soft); transition:background .15s ease, border-color .15s ease;
+}
+.wl-toggle.on{background:var(--ai); color:#fff; border-color:var(--ai);}

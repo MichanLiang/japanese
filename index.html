@@ -54,6 +54,14 @@
       </div>
       <div style="width:38px;"></div>
     </div>
+    <div style="display:flex; gap:8px; margin:0 20px 12px;">
+      <div class="wl-toggle on" id="toggleReading" onclick="toggleWordlistReading()">
+        <span>假名</span>
+      </div>
+      <div class="wl-toggle on" id="toggleChinese" onclick="toggleWordlistChinese()">
+        <span>中文</span>
+      </div>
+    </div>
     <div id="wordlistBody"></div>
     <div class="learn-btn-wrap">
       <button class="btn-primary" onclick="startFlashcards()">開始學習這個單元</button>
@@ -72,6 +80,9 @@
     <div class="flash-wrap">
       <div class="flashcard" id="flashcardEl" onclick="flipCard()"></div>
       <div class="flash-actions">
+        <button class="round-btn" onclick="event.stopPropagation(); prevCard()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
         <button class="round-btn" id="starBtn" onclick="event.stopPropagation(); toggleSaveWord()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17.3 6.2 21l1.6-6.6L2.5 9.9l6.7-.6L12 3l2.8 6.3 6.7.6-5.3 4.5L18 21z"/></svg>
         </button>
