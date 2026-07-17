@@ -181,9 +181,6 @@ function renderFlashcard(){
   document.getElementById('cardProgressFill').style.width = Math.round((state.cardIndex)/total*100) + '%';
 
   const settings = getSettings();
-  const cache = getCache();
-  const key = wkey(state.level, w);
-  const info = cache[key];
   state.revealed = false;
 
   const el = document.getElementById('flashcardEl');
@@ -194,9 +191,8 @@ function renderFlashcard(){
       <div class="${kanjiCls}">${kanjiText}</div>
     </div>
     <div class="card-reading">${w.r}</div>
-    <div class="card-meaning" id="cardMeaning">${info ? info.zh : '<span class="card-hint" style="position:static;">點擊卡片查看意思</span>'}</div>
-    ${info ? renderExampleBlock(info) : '<div id="cardExampleSlot"></div>'}
-    <div class="card-hint" id="cardHintBottom">${info ? '' : '輕點卡片翻譯 · 再點播放語音'}</div>
+    <div class="card-meaning"><span class="card-hint" style="position:static;">點擊卡片查看意思</span></div>
+    <div class="card-hint" id="cardHintBottom">輕點卡片翻譯 · 再點播放語音</div>
   `;
   updateStarButton(w);
 
@@ -219,7 +215,6 @@ async function flipCard(){
   // 已翻面 → 翻回正面
   if(state.revealed){
     state.revealed = false;
-    const info = cache[key];
     const el = document.getElementById('flashcardEl');
     const kanjiText = settings.showKanji ? w.k : w.r;
     const kanjiCls = kanjiText.length > 2 ? 'card-kanji long' : 'card-kanji';
@@ -228,42 +223,21 @@ async function flipCard(){
         <div class="${kanjiCls}">${kanjiText}</div>
       </div>
       <div class="card-reading">${w.r}</div>
-      <div class="card-meaning">${info ? info.zh : '<span class="card-hint" style="position:static;">點擊卡片查看意思</span>'}</div>
-      ${info ? renderExampleBlock(info) : ''}
+      <div class="card-meaning"><span class="card-hint" style="position:static;">點擊卡片查看意思</span></div>
       <div class="card-hint">輕點卡片翻譯 · 再點播放語音</div>
     `;
     return;
   }
 
   // 正面 → 翻面
-  if(cache[key]){
-    state.revealed = true;
-    const info = cache[key];
-    const el = document.getElementById('flashcardEl');
-    const kanjiText = settings.showKanji ? w.k : w.r;
-    const kanjiCls = kanjiText.length > 2 ? 'card-kanji long' : 'card-kanji';
-    el.innerHTML = `
-      <div class="card-genko">
-        <div class="${kanjiCls}">${kanjiText}</div>
-      </div>
-      <div class="card-reading">${w.r}</div>
-      <div class="card-meaning">${info.zh}</div>
-      ${renderExampleBlock(info)}
-      <div class="card-hint">輕點卡片翻回正面</div>
-    `;
-    return;
-  }
-  state.loading = true;
-  document.getElementById('cardMeaning').innerHTML = '<span class="card-loading">翻譯中…</span>';
-  const info = await fetchWordInfo(w);
-  state.loading = false;
+  const info = cache[key] || await fetchWordInfo(w);
   state.revealed = true;
   const el = document.getElementById('flashcardEl');
-  const kanjiText2 = settings.showKanji ? w.k : w.r;
-  const kanjiCls2 = kanjiText2.length > 2 ? 'card-kanji long' : 'card-kanji';
+  const kanjiText = settings.showKanji ? w.k : w.r;
+  const kanjiCls = kanjiText.length > 2 ? 'card-kanji long' : 'card-kanji';
   el.innerHTML = `
     <div class="card-genko">
-      <div class="${kanjiCls2}">${kanjiText2}</div>
+      <div class="${kanjiCls}">${kanjiText}</div>
     </div>
     <div class="card-reading">${w.r}</div>
     <div class="card-meaning">${info.zh}</div>
